@@ -4,7 +4,7 @@ A simple wellness activity tracker in the form of a bingo game. Mark off activit
 
 ## Play Now
 
-Visit [https://github.com/stefanusberry-ops/vibecoding_wellbeing-bingo](https://github.com/stefanusberry-ops/vibecoding_wellbeing-bingo)
+Visit [https://stefanusberry-ops.github.io/vibecoding_wellbeing-bingo/](https://stefanusberry-ops.github.io/vibecoding_wellbeing-bingo/)
 
 ## Features
 
