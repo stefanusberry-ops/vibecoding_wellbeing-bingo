@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Well-being Bingo</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --hover-color: #45a049;
+            --bg-color: #f0f7f0;
+            --cell-bg: #ffffff;
+            --text-color: #333333;
+            --win-color: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: var(--cell-bg);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .cell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .cell.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .cell.win {
+            background-color: var(--win-color);
+            color: var(--text-color);
+            animation: pulse 1s infinite;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--hover-color);
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            min-height: 30px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 480px) {
+            .board {
+                gap: 5px;
+            }
+            
+            .cell {
+                font-size: 12px;
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Well-being Bingo</h1>
+        <div class="board" id="board"></div>
+        <div class="controls">
+            <button id="resetBtn">Reset Board</button>
+        </div>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        // Core data structure
+        const activities = [
+            "10min walk", "Drink water", "Deep breaths", "Stretch break",
+            "Healthy snack", "Stand up", "Kind word", "Digital pause",
+            "Fresh air", "Gratitude", "Tidy space", "Chat friend",
+            "Music break", "Plant care", "Mindful min", "Smile :)"
+        ];
+
+        // Game state
+        let gameState = {
+            board: Array(16).fill(false),
+            hasWon: false
+        };
+
+        // DOM Elements
+        const boardEl = document.getElementById('board');
+        const messageEl = document.getElementById('message');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Initialize board
+        function initializeBoard() {
+            boardEl.innerHTML = '';
+            activities.forEach((activity, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.textContent = activity;
+                cell.dataset.index = index;
+                boardEl.appendChild(cell);
+            });
+        }
+
+        // Check for win conditions
+        function checkWin() {
+            const winPatterns = [
+                // Rows
+                [0,1,2,3], [4,5,6,7], [8,9,10,11], [12,13,14,15],
+                // Columns
+                [0,4,8,12], [1,5,9,13], [2,6,10,14], [3,7,11,15],
+                // Diagonals
+                [0,5,10,15], [3,6,9,12]
+            ];
+
+            for (const pattern of winPatterns) {
+                if (pattern.every(index => gameState.board[index])) {
+                    return pattern;
+                }
+            }
+            return null;
+        }
+
+        // Handle cell click
+        function handleCellClick(e) {
+            if (!e.target.matches('.cell') || gameState.hasWon) return;
+            
+            const index = parseInt(e.target.dataset.index);
+            gameState.board[index] = !gameState.board[index];
+            updateBoard();
+            
+            const winningPattern = checkWin();
+            if (winningPattern) {
+                gameState.hasWon = true;
+                messageEl.textContent = '🎉 Bingo! Well done on your wellness journey! 🎉';
+                winningPattern.forEach(index => {
+                    boardEl.children[index].classList.add('win');
+                });
+            }
+        }
+
+        // Update board display
+        function updateBoard() {
+            gameState.board.forEach((isActive, index) => {
+                const cell = boardEl.children[index];
+                cell.classList.toggle('active', isActive);
+            });
+        }
+
+        // Reset game
+        function resetGame() {
+            gameState = {
+                board: Array(16).fill(false),
+                hasWon: false
+            };
+            messageEl.textContent = '';
+            Array.from(boardEl.children).forEach(cell => {
+                cell.classList.remove('active', 'win');
+            });
+        }
+
+        // Event listeners
+        boardEl.addEventListener('click', handleCellClick);
+        resetBtn.addEventListener('click', resetGame);
+
+        // Initialize the game
+        initializeBoard();
+    </script>
+</body>
+</html>
